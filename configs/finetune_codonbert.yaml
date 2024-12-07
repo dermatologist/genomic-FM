@@ -1,0 +1,7 @@
+oligogenic_codon_bert:
+  class: OligogenicDataWrapper
+  task: classification
+  Seq_length: 512
+  pca_components: 16
+  model_initiator_name: codon-bert
+  output_size: 2
