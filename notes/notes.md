@@ -1,0 +1,6 @@
+## Command to fine tune
+
+```
+wandb offline # if GPU compute cannot access the internet
+python finetune.py --dataset='oligogenic_codon_bert' --epochs=3 --gpus=3 --num_workers=8 --config=configs/finetune_codonbert.yaml --seed=0 --project='Codon-Bert-Olida'
+```
