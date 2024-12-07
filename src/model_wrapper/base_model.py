@@ -9,6 +9,7 @@ from ..dataloader.save_as_np import apply_pca
 
 SUPORTED_MODELS = ['dnabert2', 'dnabert6','gena-lm-bigbird-base-t2t',
                    'gena-lm-bert-large-t2', 'hyenadna-large-1m',
+                   'codon-bert',
                    'hyenadna-tiny-1k',
                    'hyenadna-small-32k',
                    'hyenadna-medium-160k',
@@ -35,7 +36,10 @@ class BaseModel(torch.nn.Module):
         src_dir = os.path.dirname(parent_dir)
         bend_dir = os.path.join(src_dir, 'BEND')
         sys.path.append(bend_dir)
-        model_config = os.path.join(bend_dir, "conf/embedding/embed.yaml")
+        if self.model_initiator_name == 'codon-bert':
+            model_config = os.path.join("embedding", "embed.yaml")
+        else:
+            model_config = os.path.join(bend_dir, "conf/embedding/embed.yaml")
         if not os.path.exists(model_config):
             raise FileNotFoundError(f"Model config file not found at {model_config}"
                                         "If you have not included the submodule BEND, please"
