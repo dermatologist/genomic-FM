@@ -53,7 +53,8 @@ dnabert6:
   kmer : 6
 codon-bert:
   _target_ : embedding.embedders.CodonBertEmbedder
-  model_name : AIRI-Institute/codon-bert-base
+  # model_name : AIRI-Institute/codon-bert-base
+  model_path : ~/data/genome/codon-bert
   upsample_embeddings : true
 gena-lm-bigbird-base-t2t:
   _target_ : bend.utils.embedders.GENALMEmbedder
