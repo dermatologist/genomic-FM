@@ -81,3 +81,4 @@ lightning_logs/
 # Slurm #
 ########
 slurm-*
+nohup.out
