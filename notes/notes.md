@@ -1,6 +1,28 @@
 ## Command to fine tune
 
+## Requirements
+
+* python 3.10
+* pytorch 2.2.0
+
+conda create -n py310 python=3.10
+conda install conda-forge::transformers pytorch::pytorch=2.2.0
+conda install bioconda::pyliftover
+pip3 install mavehgvs
+pip install git+https://github.com/dermatologist/genomic-tokenizer.git@feature/get-vocab-1
+conda install bioconda::vcfpy
+conda install bioconda::kipoiseq
+conda install conda-forge::einops
+conda install conda-forge::rich
+conda install conda-forge::boto3
+conda install conda-forge::scikit-learn
+conda install conda-forge::wandb
+conda install conda-forge::pytorch-lightning=1.9.3
+
+*
+
 ```
 wandb offline # if GPU compute cannot access the internet
 python finetune.py --dataset='oligogenic_codon_bert' --epochs=3 --gpus=3 --num_workers=8 --config=configs/finetune_codonbert.yaml --seed=0 --project='Codon-Bert-Olida'
 ```
+

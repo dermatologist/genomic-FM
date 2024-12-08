@@ -1,3 +1,4 @@
+# https://github.com/frederikkemarin/BEND/blob/e1e63faec4dddf7c8c63fd9f419b87f535be6355/bend/utils/embedders.py
 '''
 embedders.py
 ------------
@@ -101,7 +102,7 @@ class CodonBertEmbedder(BaseEmbedder):
     '''Embed using the CodonBert model '''
 
     def load_model(self,
-                   model_path: str = '~/data/genome/codonbert/',
+                   model_path: str = '/home/orion-lab/data/genome/codon-bert/',
                    model_max_length: int = 512,
                      **kwargs):
         if not os.path.exists(model_path):
@@ -109,17 +110,19 @@ class CodonBertEmbedder(BaseEmbedder):
 
         config = AutoConfig.from_pretrained(model_path)
         self.tokenizer = GenomicTokenizer(model_max_length)
-        self.bert_model = AutoModel.from_pretrained(model_path, config=config)
-        self.bert_model.to(device)
-        self.bert_model.eval()
+        self.model = AutoModel.from_pretrained(model_path, config=config)
+        self.model.to(device)
+        self.model.eval()
 
     def embed(self, sequences: List[str], disable_tqdm: bool = False, remove_special_tokens: bool = True, upsample_embeddings: bool = False):
         embeddings = []
         with torch.no_grad():
             for seq in tqdm(sequences, disable=disable_tqdm):
-                input_ids = self.tokenizer(seq)["input_ids"]
+                input_ids = torch.tensor(self.tokenizer(seq)["input_ids"]).unsqueeze(0)
+                attention_mask = torch.tensor(self.tokenizer(seq)["attention_mask"]).unsqueeze(0)
                 input_ids = input_ids.to(device)
-                embedding = self.model(input_ids=input_ids).last_hidden_state
+                attention_mask = attention_mask.to(device)
+                embedding = self.model(input_ids=input_ids, attention_mask=attention_mask).last_hidden_state
                 embeddings.append(embedding.detach().cpu().numpy())
         return embeddings
 

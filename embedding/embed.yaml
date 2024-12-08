@@ -1,3 +1,4 @@
+# https://github.com/frederikkemarin/BEND/blob/e1e63faec4dddf7c8c63fd9f419b87f535be6355/conf/embedding/embed.yaml
 defaults:
   - datadims : [label_dims,embedding_dims,seq_lengths, downstream_downsample]
   #- hydra : multirun
@@ -54,7 +55,7 @@ dnabert6:
 codon-bert:
   _target_ : embedding.embedders.CodonBertEmbedder
   # model_name : AIRI-Institute/codon-bert-base
-  model_path : ~/data/genome/codon-bert
+  # model_path : "/home/orion-lab/data/genome/codon-bert"
   upsample_embeddings : true
 gena-lm-bigbird-base-t2t:
   _target_ : bend.utils.embedders.GENALMEmbedder
