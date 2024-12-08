@@ -38,9 +38,25 @@ def apply_pca_torch(data, n_components=16, return_original=False):
     return pca_transformed_data.numpy()  # Convert to numpy if needed
 
 
+#! see pca.py
 def apply_pca(data, n_components=16):
+
+    try:
+        data = np.array(data) # If all dimensions are the same, this will work
+
+    except:
+        # seq1s is a list of np arrays with three dimensions
+        # Let's pad the second dimension to a length of 512
+        for i in range(len(data)):
+            # pad second dimension of array with 3 dimensions
+            # seq1s[i] = np.pad(seq1s[i], ((0, 512 - seq1s[i].shape[0]), (0, 0)), 'constant', constant_values=0)
+            data[i] = np.pad(data[i], ((0, 0), (0, 512 - data[i].shape[1]), (0, 0)), 'constant', constant_values=0)
+
+        data = np.array(data)
+
     # Reshape the data
     reshaped_data = data.reshape(-1, data.shape[-1])  # Reshape to (num_samples * 1024, 128)
+
 
     # Apply PCA
     pca = PCA(n_components=n_components)
@@ -49,6 +65,7 @@ def apply_pca(data, n_components=16):
 
     # Reshape back to the original shape
     pca_transformed_data = pca_transformed_data.reshape(data.shape[:-1] + (-1,))  # Reshape back to (num_samples, 1024, n_components)
+    pca_transformed_data = pca_transformed_data.squeeze() # any dimensions of size 1 removed
 
     return pca_transformed_data
 
@@ -248,7 +265,7 @@ def save_data_delta(data, base_filename='data', base_index=0, base_dir='root/dat
     ##########################
     # Try pca
     ##########################
-    seq1s = apply_pca(np.array(seq1s),n_components=pca_components)
+    seq1s = apply_pca(seq1s,n_components=pca_components)
 
     # Save each component of the chunk
     filename = f'{base_filename}_seq1_{base_index}.npy'
