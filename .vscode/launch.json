@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python Debugger: Run finetune.py with Arguments",
+            "name": "Python Debugger: Run finetune.py codon-bert",
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/finetune.py",
@@ -17,6 +17,23 @@
                 "--gpus", "3",
                 "--num_workers", "4",
                 "--config", "configs/finetune_codonbert.yaml",
+                "--seed", "42",
+                "--project", "Codon-Bert-Olida",
+            ]
+        },
+                {
+            "name": "Python Debugger: Run finetune.py dnabert",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/finetune.py",
+            "console": "integratedTerminal",
+            "args": [
+        // Add the arguments from run.sh here
+                "--dataset", "oligogenic_dnabert2",
+                "--epochs", "2",
+                "--gpus", "3",
+                "--num_workers", "4",
+                "--config", "configs/finetune_codonbert.yaml", // All configs are in the same file
                 "--seed", "42",
                 "--project", "Codon-Bert-Olida",
             ]

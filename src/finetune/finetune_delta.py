@@ -73,7 +73,7 @@ def parse_args():
     args = parser.parse_args()
     return args
 
-def run_training(dataset, lr, epochs, gpus, seed, config_path, split_ratio, batch_size, num_workers, logger_name, disk_chunk, cache_dir="root/data/npy_output", cache_data_ram=True, mode="train", checkpoint=None, project=None):
+def run_training(dataset, lr, epochs, gpus, seed, config_path, split_ratio, batch_size, num_workers, logger_name, disk_chunk, cache_dir="root/data/npy_output", cache_data_ram=False, mode="train", checkpoint=None, project=None):
     if logger_name == "wandb":
         run_name = f"Formal_{dataset}_lr={lr}_epochs={epochs}_gpus={gpus}_seed={seed}_Time={time.time()}"
         wandb_logger = WandbLogger(name=run_name, project=project)
@@ -104,7 +104,7 @@ def run_training(dataset, lr, epochs, gpus, seed, config_path, split_ratio, batc
         else:
             DATA = cls()
         data = DATA.get_data(**info)
-        # data = data[:10] #TODO: For testing
+        data = data[:5000] #TODO: For testing
         x_class, y_class = map_to_class(data, task, dataset,path=cache_dir)
         print(f"Mapped x_class: {x_class}")
         print(f"Mapped y_class: {y_class}")

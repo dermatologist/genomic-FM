@@ -72,7 +72,7 @@ def parse_args():
     args = parser.parse_args()
     return args
 
-def run_training(dataset, lr, epochs, gpus, seed, config_path, split_ratio, batch_size, num_workers, logger_name, disk_chunk, cache_dir="root/data/npy_output", cache_data_ram=True, mode="train", checkpoint=None, fullsize=True):
+def run_training(dataset, lr, epochs, gpus, seed, config_path, split_ratio, batch_size, num_workers, logger_name, disk_chunk, cache_dir="root/data/npy_output", cache_data_ram=False, mode="train", checkpoint=None, fullsize=True):
     if logger_name == "wandb":
         run_name = f"{dataset}_lr={lr}_epochs={epochs}_gpus={gpus}_seed={seed}_Time={time.time()}"
         wandb_logger = WandbLogger(name=run_name, project="RUN-GFM")
