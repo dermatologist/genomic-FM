@@ -49,7 +49,7 @@ class VectorLoader:
                                             annotation_paths=annot_path,
                                             label_paths=label_path,
                                             label_dtype=y_type)
-            loader = torch.utils.data.DataLoader(memmap_data, batch_size=mini_batch, shuffle=True, num_workers=18, pin_memory=True)
+            loader = torch.utils.data.DataLoader(memmap_data, batch_size=mini_batch, shuffle=True, num_workers=2, pin_memory=True)
             if num_records is None:
                 num_batches = len(loader)
             else:

@@ -20,7 +20,7 @@ def run():
                 #  config_path="configs/finetune_ntv2.yaml",
                  split_ratio=[0.8, 0.1, 0.1],
                  batch_size=wandb.config.batch_size,
-                 num_workers=8,
+                 num_workers=2,
                  logger_name="wandb",
                  disk_chunk=2500,
                  cache_dir="root/data/npy_output_delta",

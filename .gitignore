@@ -82,3 +82,4 @@ lightning_logs/
 ########
 slurm-*
 nohup.out
+data/*
