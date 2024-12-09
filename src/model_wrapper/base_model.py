@@ -73,7 +73,7 @@ class BaseModel(torch.nn.Module):
 
     def cache_embed(self, data):
         new_data = []
-        for i in tqdm(range(len(data)), desc="Caching embeddings"):
+        for i in tqdm(range(len(data)), desc="Caching embeddings (function: cache_embed)"):
             x, y = data[i]
             seq1, seq2 = self.model(x[0]), self.model(x[1])
             new_data.append([[seq1,seq2,x[2]],y])
@@ -81,7 +81,7 @@ class BaseModel(torch.nn.Module):
 
     def cache_embed_delta_with_annotation(self,data):
         new_data = []
-        for x, y in tqdm(data, desc="Caching embeddings"):
+        for x, y in tqdm(data, desc="Caching embeddings (function: cache_embed_delta_with_annotation)"):
             seq1, seq2 = self.model(x[0],upsample_embeddings=True), self.model(x[1],upsample_embeddings=True)
             # if the length of seq1 and seq2 are not equal, truncate the longer sequence
             if seq1.shape[1] != seq2.shape[1]:
@@ -95,7 +95,7 @@ class BaseModel(torch.nn.Module):
         # Step 1: Collect all differences
         differences = []
         labels = []
-        for x, y in tqdm(data, desc="Caching embeddings"):
+        for x, y in tqdm(data, desc="Caching embeddings (function: cache_embed_delta)"):
             seq1, seq2 = self.model(x[0],upsample_embeddings=True), self.model(x[1],upsample_embeddings=True)
             min_length = min(seq1.shape[1], seq2.shape[1])
             seq1 = seq1[:, :min_length]

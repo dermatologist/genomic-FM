@@ -99,6 +99,7 @@ def run_training(dataset, lr, epochs, gpus, seed, config_path, split_ratio, batc
         # Create data module
         cls = getattr(data_wrapper, info.pop('class'))
         if 'num_records' in info and 'all_records' in info:
+            print(f"Num records: {info['num_records']}")
             DATA = cls(num_records=info.pop('num_records'), all_records=info.pop('all_records'))
         else:
             DATA = cls()
@@ -110,6 +111,7 @@ def run_training(dataset, lr, epochs, gpus, seed, config_path, split_ratio, batc
         start_idx =  0
         end_idx = len(data)
         for i in range(0+start_idx, end_idx, disk_chunk):
+            print(f"Processing chunk {i} of {end_idx}")
             embeddings = model.cache_embed_delta_with_annotation(data[i:i+disk_chunk]) # Pre-compute embeddings for the data
             save_data_delta(embeddings, base_filename=dataset, base_index=i,pca_components=pca_components,
                             base_dir=cache_dir)
