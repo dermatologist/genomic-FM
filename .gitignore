@@ -38,7 +38,7 @@ Thumbs.db
 # IDE and Editor folders #
 ##########################
 .idea/
-.vscode/
+# .vscode/
 *.swp
 *.swo
 *.sublime-workspace

@@ -103,6 +103,7 @@ def run_training(dataset, lr, epochs, gpus, seed, config_path, split_ratio, batc
         else:
             DATA = cls()
         data = DATA.get_data(**info)
+        # data = data[:10] #TODO: For testing
         x_class, y_class = map_to_class(data, task, dataset,path=cache_dir)
         print(f"Mapped x_class: {x_class}")
         print(f"Mapped y_class: {y_class}")

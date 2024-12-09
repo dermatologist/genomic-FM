@@ -1,0 +1,25 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python Debugger: Run finetune.py with Arguments",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/finetune.py",
+            "console": "integratedTerminal",
+            "args": [
+        // Add the arguments from run.sh here
+                "--dataset", "oligogenic_codon_bert",
+                "--epochs", "2",
+                "--gpus", "3",
+                "--num_workers", "4",
+                "--config", "configs/finetune_codonbert.yaml",
+                "--seed", "42",
+                "--project", "Codon-Bert-Olida",
+            ]
+        }
+    ]
+}
