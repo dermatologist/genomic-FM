@@ -45,7 +45,7 @@ model : nt_transformer_1000g
 task : gene_finding
 # model instatiators
 dnabert2:
-  _target_ : bend.utils.embedders.DNABert2Embedder
+  _target_ : embedding.embedders.DNABert2Embedder  # copied from bend to embedders.py
   model_name : zhihan1996/DNABERT-2-117M
   upsample_embeddings : true
 dnabert6:

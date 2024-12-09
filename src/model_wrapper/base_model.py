@@ -36,7 +36,7 @@ class BaseModel(torch.nn.Module):
         src_dir = os.path.dirname(parent_dir)
         bend_dir = os.path.join(src_dir, 'BEND')
         sys.path.append(bend_dir)
-        if self.model_initiator_name == 'codon-bert':
+        if self.model_initiator_name == 'codon-bert' or self.model_initiator_name == 'dnabert2':
             model_config = os.path.join("embedding", "embed.yaml")
         else:
             model_config = os.path.join(bend_dir, "conf/embedding/embed.yaml")
