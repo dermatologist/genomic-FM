@@ -127,7 +127,7 @@ def run_training(dataset, lr, epochs, gpus, seed, config_path, split_ratio, batc
             print("RAM disk is not mounted, loading data to RAM at dataloader level,"
                   "this will be slower than loading to RAM disk!")
         else:
-            subprocess.run(["rm", "-r", destination_path+'*'], check=True)
+            # subprocess.run(["rm", "-r", destination_path+'*'], check=True)
             subprocess.run(["cp", "-r", cache_dir, destination_path], check=True)
             cache_dir = destination_path + cache_dir.split('/')[-1]
             cache_data_ram = False

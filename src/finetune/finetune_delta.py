@@ -73,7 +73,7 @@ def parse_args():
     args = parser.parse_args()
     return args
 
-def run_training(dataset, lr, epochs, gpus, seed, config_path, split_ratio, batch_size, num_workers, logger_name, disk_chunk, cache_dir="root/data/npy_output", cache_data_ram=True, mode="train", checkpoint=None, project=None):
+def run_training(dataset, lr, epochs, gpus, seed, config_path, split_ratio, batch_size, num_workers, logger_name, disk_chunk, cache_dir="root/data/npy_output", cache_data_ram=False, mode="train", checkpoint=None, project=None):
     if logger_name == "wandb":
         run_name = f"Formal_{dataset}_lr={lr}_epochs={epochs}_gpus={gpus}_seed={seed}_Time={time.time()}"
         wandb_logger = WandbLogger(name=run_name, project=project)
@@ -129,7 +129,7 @@ def run_training(dataset, lr, epochs, gpus, seed, config_path, split_ratio, batc
                   "this will be slower than loading to RAM disk!")
         else:
             # clear the cache directory first
-            subprocess.run(["rm", "-r", destination_path+'*'], check=True)
+            # subprocess.run(["rm", "-r", destination_path+'*'], check=True)
             subprocess.run(["cp", "-r", cache_dir, destination_path], check=True)
             cache_dir = destination_path + cache_dir.split('/')[-1]
             cache_data_ram = False
