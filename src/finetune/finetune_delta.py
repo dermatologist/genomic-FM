@@ -104,7 +104,7 @@ def run_training(dataset, lr, epochs, gpus, seed, config_path, split_ratio, batc
         else:
             DATA = cls()
         data = DATA.get_data(**info)
-        data = data[:5000] #TODO: For testing
+        # data = data[:500] #TODO: For testing
         x_class, y_class = map_to_class(data, task, dataset,path=cache_dir)
         print(f"Mapped x_class: {x_class}")
         print(f"Mapped y_class: {y_class}")
@@ -130,6 +130,7 @@ def run_training(dataset, lr, epochs, gpus, seed, config_path, split_ratio, batc
             cache_data_ram = False
     seq1_path, annot_path, label_path = get_cache_delta(dataset, cache_dir)
     y_type = np.float32 if task == 'regression' else np.int64
+    print(f"Seq Length: {info['Seq_length']} pca_components: {pca_components}")
     memmap_data = MemMapDatasetDelta(path_seq1=seq1_path,
                                 seq_shape=(info['Seq_length'], pca_components),
                                 chunk_size=info['Seq_length'],

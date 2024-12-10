@@ -169,9 +169,13 @@ class MemMapDatasetDelta(Dataset[Dict[str, Any]]):
             chunk_size = 1
         dtype = dtype
         item_size = dtype(0).itemsize
-        print(f"args: {path}, {dtype}, {is_label}, {chunk_size}")
-        print(f"file_size: {file_size(path)}")
-        print(f"item_size: {item_size}")
+        # print(f"\nargs: {path}, {dtype}, {is_label}, {chunk_size}\n")
+        # print(f"\nfile_size: {file_size(path)}\n")
+        # print(f"\nitem_size: {item_size}\n")
+        # print(f"\nfile_size // (item_size * chunk_size): {file_size(path) // (item_size * chunk_size)}\n")
+        print(
+            f"\nfile_size: {file_size(path)}, dtype: {dtype}, chunk_size: {chunk_size}, item_size: {item_size}, length: {file_size(path) // (item_size * chunk_size)}\n"
+        )
         return path, file_size(path) // (item_size * chunk_size)
 
     def __len__(self) -> int:

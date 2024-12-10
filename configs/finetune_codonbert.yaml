@@ -10,7 +10,7 @@ oligogenic_codon_bert:
 oligogenic_dnabert2:
   class: OligogenicDataWrapper
   task: classification
-  Seq_length: 512
+  Seq_length: 2048
   pca_components: 16
   model_initiator_name: dnabert2
   output_size: 2
@@ -19,7 +19,7 @@ clinvar_significance_dnabert2:
   class: ClinVarDataWrapper
   task: classification
   target: CLNSIG
-  Seq_length: 512
+  Seq_length: 2048
   pca_components: 16
   model_initiator_name: dnabert2
   output_size: 4
@@ -37,7 +37,7 @@ clinvar_disease_dnabert2:
   class: ClinVarDataWrapper
   task: classification
   target: CLNDN
-  Seq_length: 512
+  Seq_length: 2048
   pca_components: 16
   model_initiator_name: dnabert2
   output_size: 2
