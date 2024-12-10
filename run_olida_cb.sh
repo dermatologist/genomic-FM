@@ -1,1 +1,0 @@
-python finetune.py --dataset='oligogenic_codon_bert' --epochs=2 --gpus=3 --disk_chunk=750 --num_workers=2 --config=configs/finetune_codonbert.yaml --seed=0 --project='Codon-Bert-Olida'

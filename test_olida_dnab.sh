@@ -1,0 +1,1 @@
+python finetune.py --dataset='oligogenic_dnabert2' --epochs=2 --gpus=3 --disk_chunk=750 --mode=test --checkpoint=DNA-Bert-Olida/1i18srdl/checkpoints/epoch=1-step=42.ckpt --num_workers=2 --config=configs/finetune_codonbert.yaml --seed=42 --project='DNA-Bert-Olida'

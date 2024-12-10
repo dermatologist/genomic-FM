@@ -15,9 +15,10 @@
                 "--dataset", "oligogenic_codon_bert",
                 "--epochs", "2",
                 "--gpus", "3",
-                "--num_workers", "4",
+                "--num_workers", "2",
                 "--config", "configs/finetune_codonbert.yaml",
                 "--seed", "42",
+                "--disk_chunk", "750",
                 "--project", "Codon-Bert-Olida",
             ]
         },
@@ -32,10 +33,11 @@
                 "--dataset", "oligogenic_dnabert2",
                 "--epochs", "2",
                 "--gpus", "3",
-                "--num_workers", "4",
+                "--num_workers", "2",
                 "--config", "configs/finetune_codonbert.yaml", // All configs are in the same file
                 "--seed", "42",
-                "--project", "Codon-Bert-Olida",
+                "--disk_chunk", "750",
+                "--project", "DNA-Bert-Olida",
             ]
         }
     ]

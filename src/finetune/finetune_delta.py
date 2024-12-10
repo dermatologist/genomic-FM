@@ -85,7 +85,8 @@ def run_training(dataset, lr, epochs, gpus, seed, config_path, split_ratio, batc
     info = info[dataset]
     # Create model
     pca_components = info.pop('pca_components')
-    model = CNN_Head(model_initiator_name=info.pop('model_initiator_name'),
+    model_initiator_name = info.pop('model_initiator_name')
+    model = CNN_Head(model_initiator_name=model_initiator_name,
                      output_size=info.pop('output_size'),
                      base_model_output_size=pca_components)
     task = info.pop('task')
@@ -121,6 +122,12 @@ def run_training(dataset, lr, epochs, gpus, seed, config_path, split_ratio, batc
             save_data_delta(embeddings, base_filename=dataset, base_index=i,pca_components=pca_components,
                             base_dir=cache_dir)
         print(">>>>End of caching")
+        if model_initiator_name != "codon-bert":
+            info['Seq_length'] = info['Seq_length'] * 2 #TODO, Is not working without this
+    else:
+        print("Data already cached, loading from cache")
+        if model_initiator_name != "codon-bert":
+            info['Seq_length'] = info['Seq_length'] * 2 #TODO, Is not working without this
     if cache_data_ram:
         destination_path = '/dev/shm/'
         # check is the /dev/shm/ is mounted
