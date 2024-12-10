@@ -5,7 +5,7 @@ oligogenic_codon_bert:
   pca_components: 16
   model_initiator_name: codon-bert
   output_size: 2
-  num_records: 1500
+  num_records: 15000
   all_records: False
 
 oligogenic_dnabert2:
@@ -15,7 +15,7 @@ oligogenic_dnabert2:
   pca_components: 16
   model_initiator_name: dnabert2
   output_size: 2
-  num_records: 1500
+  num_records: 15000
   all_records: False
 
 clinvar_significance_dnabert2:
