@@ -100,11 +100,13 @@ def run_training(dataset, lr, epochs, gpus, seed, config_path, split_ratio, batc
         cls = getattr(data_wrapper, info.pop('class'))
         if 'num_records' in info and 'all_records' in info:
             print(f"Num records: {info['num_records']}")
-            DATA = cls(num_records=info.pop('num_records'), all_records=info.pop('all_records'))
+            num_records = info.pop('num_records')
+            all_records = info.pop('all_records')
+            DATA = cls(num_records=num_records, all_records=all_records)
         else:
             DATA = cls()
         data = DATA.get_data(**info)
-        data = data[:int(info['num_records'])] #TODO: For testing
+        data = data[:num_records] #TODO: For testing
         x_class, y_class = map_to_class(data, task, dataset,path=cache_dir)
         print(f"Mapped x_class: {x_class}")
         print(f"Mapped y_class: {y_class}")
