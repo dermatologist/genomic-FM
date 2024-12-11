@@ -31,6 +31,17 @@ clinvar_CLNDN_dnabert2:
   fix_dim: False
   output_size: 2 # number of unique diseases in the dataset
 
+clinvar_CLNDN_codon_bert:
+  class: ClinVarDataWrapper
+  task: classification
+  target: CLNDN # disease name
+  Seq_length: 512
+  pca_components: 16
+  disease_subset: True  # Lung cancer, see data_wrapper.py for more details
+  model_initiator_name: codon-bert
+  fix_dim: False
+  output_size: 2 # number of unique diseases in the dataset
+
 # clinvar_significance_dnabert2:
 #   class: ClinVarDataWrapper
 #   task: classification

@@ -1,0 +1,1 @@
+python finetune.py --dataset='clinvar_CLNDN_codon_bert' --epochs=10 --gpus=3 --disk_chunk=750 --num_workers=2 --config=configs/finetune_codonbert.yaml --seed=42 --project='Codon-Bert-CLNDN-ClinVar'
