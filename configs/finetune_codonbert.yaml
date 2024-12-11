@@ -4,6 +4,7 @@ oligogenic_codon_bert:
   Seq_length: 512
   pca_components: 16
   model_initiator_name: codon-bert
+  fix_dim: False
   output_size: 2
   # num_records: 150000
   # all_records: False
@@ -14,42 +15,54 @@ oligogenic_dnabert2:
   Seq_length: 1024
   pca_components: 16
   model_initiator_name: dnabert2
+  fix_dim: True
   output_size: 2
   # num_records: 150000
   # all_records: False
 
-clinvar_significance_dnabert2:
+clinvar_CLNDN_dnabert2:
   class: ClinVarDataWrapper
   task: classification
-  target: CLNSIG
+  target: CLNDN # disease name
   Seq_length: 1024
   pca_components: 16
+  disease_subset: True  # Lung cancer, see data_wrapper.py for more details
   model_initiator_name: dnabert2
-  output_size: 4
+  fix_dim: False
+  output_size: 2 # number of unique diseases in the dataset
 
-clinvar_significance_codon_bert:
-  class: ClinVarDataWrapper
-  task: classification
-  target: CLNSIG
-  Seq_length: 512
-  pca_components: 16
-  model_initiator_name: codon-bert
-  output_size: 4
+# clinvar_significance_dnabert2:
+#   class: ClinVarDataWrapper
+#   task: classification
+#   target: CLNSIG
+#   Seq_length: 1024
+#   pca_components: 16
+#   model_initiator_name: dnabert2
+#   output_size: 4
 
-clinvar_disease_dnabert2:
-  class: ClinVarDataWrapper
-  task: classification
-  target: CLNDN
-  Seq_length: 1024
-  pca_components: 16
-  model_initiator_name: dnabert2
-  output_size: 2
+# clinvar_significance_codon_bert:
+#   class: ClinVarDataWrapper
+#   task: classification
+#   target: CLNSIG
+#   Seq_length: 512
+#   pca_components: 16
+#   model_initiator_name: codon-bert
+#   output_size: 4
 
-clinvar_disease_codon_bert:
-  class: ClinVarDataWrapper
-  task: classification
-  target: CLNDN
-  Seq_length: 512
-  pca_components: 16
-  model_initiator_name: codon-bert
-  output_size: 2
+# clinvar_disease_dnabert2:
+#   class: ClinVarDataWrapper
+#   task: classification
+#   target: CLNDN
+#   Seq_length: 1024
+#   pca_components: 16
+#   model_initiator_name: dnabert2
+#   output_size: 2
+
+# clinvar_disease_codon_bert:
+#   class: ClinVarDataWrapper
+#   task: classification
+#   target: CLNDN
+#   Seq_length: 512
+#   pca_components: 16
+#   model_initiator_name: codon-bert
+#   output_size: 2

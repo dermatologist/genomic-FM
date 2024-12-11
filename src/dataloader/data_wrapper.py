@@ -137,9 +137,9 @@ class MAVEDataWrapper:
 
         if self.all_records:
             return data
-        
+
         return data[:self.num_records]
-    
+
 class GWASDataWrapper:
     def __init__(self, num_records=2000, all_records=True):
         self.num_records = num_records
@@ -231,14 +231,18 @@ class ClinVarDataWrapper:
                     continue
                 data.append([x, y[0]])
             elif target == 'CLNDN':
-                if record['CLNDN'][0] is not None:
-                    y = record['CLNDN'][0].split('|') # disease name
-                    # each mutation can be associated with multiple diseases
-                    # but most of those diseases are related, so we just take the first one which is not 'not_provided'
-                    for disease in y:
-                        if disease != 'not_provided':
-                            data.append([x, self.convert_disease_name(disease)])
-                            break
+                try:
+                    if record['CLNDN'][0] is not None:
+                        y = record['CLNDN'][0].split('|') # disease name
+                        # each mutation can be associated with multiple diseases
+                        # but most of those diseases are related, so we just take the first one which is not 'not_provided'
+                        for disease in y:
+                            if disease != 'not_provided':
+                                data.append([x, self.convert_disease_name(disease)])
+                                break
+                except:
+                    print("Error in CLNDN: ", record['CLNDN'])
+                    continue
         if disease_subset:
             data_subset = []
             # get the length of records with the disease subset
