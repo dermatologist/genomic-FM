@@ -133,8 +133,8 @@ if __name__ == '__main__' :
         print("Invalid tokenizer, please choose between 'gt' or 'dnab'")
         exit(0)
 
-    run_name = f"Formal_ClinVar_epochs={epochs}_gpus={gpus}_Time={time.time()}"
-    wandb_logger = WandbLogger(name=run_name, project=f"Tokenizer comparison - {sys.argv[1]}")
+    run_name = sys.argv[1]
+    wandb_logger = WandbLogger(name=run_name, project=f"Tokenizer comparison")
 
 
     trainer_args = {
