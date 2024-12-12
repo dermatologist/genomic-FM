@@ -121,14 +121,16 @@ if __name__ == '__main__' :
     dataset = TextDataset(sentences, labels, tokenizer, max_length=128)
 
     train_size = int(0.8 * len(dataset))
-    val_size = len(dataset) - train_size
-    train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
+    val_size = int(0.1 * len(dataset))
+    test_size = len(dataset) - (train_size + val_size)
+    train_dataset, val_dataset, test_dataset = random_split(dataset, [train_size, val_size, test_size])
 
     train_loader = DataLoader(train_dataset, batch_size=8, num_workers=2, persistent_workers=True)
     val_loader = DataLoader(val_dataset, batch_size=8)
+    test_loader = DataLoader(test_dataset, batch_size=8)
 
 
-    #  instantiate yourself
+    #  Initiate model from scratch
     config = BertConfig(
         vocab_size=tokenizer.vocab_size,
         max_position_embeddings=512,
@@ -144,8 +146,7 @@ if __name__ == '__main__' :
 
     model = BertClassifier(_model, num_labels=2)
     model = model.cuda()
-    # model = BertClassifier('bert-base-uncased', num_labels=2)
-    # model = BertClassifier('bert-base-uncased', num_labels=2)
+
     trainer = pl.Trainer(
         max_epochs=1,
         accelerator='gpu',
@@ -153,4 +154,4 @@ if __name__ == '__main__' :
         )
     trainer.fit(model, train_loader, val_loader)
     # trainer.validate(ckpt_path='output/best.ckpt', dataloaders=val_loader)
-    trainer.test(ckpt_path='best', dataloaders=val_loader)
+    trainer.test(ckpt_path='best', dataloaders=test_loader)
