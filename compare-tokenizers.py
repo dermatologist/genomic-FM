@@ -6,11 +6,13 @@ from src.dataloader.data_wrapper import (
 )
 import pytorch_lightning as pl
 from torch.utils.data import DataLoader, Dataset, random_split
-from transformers import BertForSequenceClassification, BertTokenizer, BertConfig, AutoTokenizer
+from transformers import BertForSequenceClassification, BertConfig, AutoTokenizer
 from sklearn.metrics import accuracy_score, f1_score
 from genomic_tokenizer import GenomicTokenizer
+from pytorch_lightning.loggers import WandbLogger
 import pandas as pd
 from tqdm import tqdm
+import time
 
 
 DISEASE_SUBSET = ['Lung_cancer','EGFR-related_lung_cancer','Lung_carcinoma','Autoimmune_interstitial_lung_disease-arthritis_syndrome','Global_developmental_delay_-_lung_cysts_-_overgrowth_-_Wilms_tumor_syndrome','Small_cell_lung_carcinoma','Chronic_lung_disease','Lung_adenocarcinoma','Lung_disease','Non-small_cell_lung_carcinoma','LUNG_CANCER','Squamous_cell_lung_carcinoma']
@@ -88,9 +90,6 @@ def process_data(data):
         new_data.append([x[0], x[1], x[2], y])
     return new_data
 
-# Example usage
-# texts = ["This is a positive sentence.", "This is a negative sentence."]
-# labels = [1, 0]
 def get_df():
     file_path = 'output/lung_cancer.pkl'
     if os.path.exists(file_path):
@@ -107,11 +106,20 @@ def get_df():
 
 
 if __name__ == '__main__' :
+    # System
+    os.environ["TOKENIZERS_PARALLELISM"] = "false"
+    gpus = 3
     df = get_df()
+    # create chkpoint directory in /tmp if it does not exist
+    if not os.path.exists('/tmp/checkpoints'):
+        os.makedirs('/tmp/checkpoints')
+    tmpdir = '/tmp/checkpoints/'
     # Genomic tokenizer
     model_max_length = 512
     # DNABert2
     model_name = "zhihan1996/DNABERT-2-117M"
+    # Parameters
+    epochs = 1
 
     if len(sys.argv) < 2:
         print("Please provide a tokenizer to use")
@@ -124,6 +132,21 @@ if __name__ == '__main__' :
     else:
         print("Invalid tokenizer, please choose between 'gt' or 'dnab'")
         exit(0)
+
+    run_name = f"Formal_ClinVar_epochs={epochs}_gpus={gpus}_Time={time.time()}"
+    wandb_logger = WandbLogger(name=run_name, project=f"Tokenizer comparison - {sys.argv[1]}")
+
+
+    trainer_args = {
+        'max_epochs': epochs,
+        'logger': wandb_logger
+    }
+    if gpus >= 1:
+        trainer_args['accelerator'] = 'gpu'
+        trainer_args['devices'] = gpus
+        trainer_args['strategy'] = 'ddp'
+    else:
+        trainer_args['accelerator'] = 'cpu'
 
     sentences = df['alt'].tolist()
     labels = df['label'].tolist()
@@ -162,11 +185,17 @@ if __name__ == '__main__' :
     model = BertClassifier(_model, num_labels=2)
     model = model.cuda()
 
-    trainer = pl.Trainer(
-        max_epochs=1,
-        accelerator='gpu',
-        devices=3
-        )
+    chpt = pl.callbacks.model_checkpoint.ModelCheckpoint(
+        dirpath=tmpdir,
+        filename=sys.argv[1],  # extension is added automatically
+        monitor='val_accuracy',
+        mode='max',
+        save_top_k=1,
+        save_last=True
+    )
+    trainer_args['callbacks'] = [chpt]
+    trainer = pl.Trainer(**trainer_args)
     trainer.fit(model, train_loader, val_loader)
     # trainer.validate(ckpt_path='output/best.ckpt', dataloaders=val_loader)
-    trainer.test(ckpt_path='best', dataloaders=test_loader)
+    ckpt_path = os.path.join(tmpdir, sys.argv[1]+'.ckpt')
+    trainer.test(ckpt_path=ckpt_path, dataloaders=test_loader)
