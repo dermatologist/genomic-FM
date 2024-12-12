@@ -1,11 +1,12 @@
 import torch
 import os
+import sys
 from src.dataloader.data_wrapper import (
     ClinVarDataWrapper
 )
 import pytorch_lightning as pl
 from torch.utils.data import DataLoader, Dataset, random_split
-from transformers import BertForSequenceClassification, BertTokenizer, BertConfig
+from transformers import BertForSequenceClassification, BertTokenizer, BertConfig, AutoTokenizer
 from sklearn.metrics import accuracy_score, f1_score
 from genomic_tokenizer import GenomicTokenizer
 import pandas as pd
@@ -107,9 +108,22 @@ def get_df():
 
 if __name__ == '__main__' :
     df = get_df()
-    # tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+    # Genomic tokenizer
     model_max_length = 512
-    tokenizer = GenomicTokenizer(model_max_length)
+    # DNABert2
+    model_name = "zhihan1996/DNABERT-2-117M"
+
+    if len(sys.argv) < 2:
+        print("Please provide a tokenizer to use")
+        exit(0)
+
+    if sys.argv[1] == 'gt':
+        tokenizer = GenomicTokenizer(model_max_length)
+    elif sys.argv[1] == 'dnab':
+        tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
+    else:
+        print("Invalid tokenizer, please choose between 'gt' or 'dnab'")
+        exit(0)
 
     sentences = df['alt'].tolist()
     labels = df['label'].tolist()
