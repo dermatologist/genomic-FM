@@ -61,14 +61,22 @@ class BertClassifier(pl.LightningModule):
         labels = torch.cat([x['labels'] for x in outputs])
         accuracy = accuracy_score(labels.cpu(), preds.cpu())
         f1 = f1_score(labels.cpu(), preds.cpu(), average='weighted')
-        self.log('val_accuracy', accuracy)
-        self.log('val_f1', f1)
+        self.log('val_accuracy', accuracy, sync_dist=True)
+        self.log('val_f1', f1, sync_dist=True)
 
-    def test_step(self, *args, **kwargs):
-        return super().test_step(*args, **kwargs)
+    def test_step(self, batch, batch_idx, **kwargs):
+        outputs = self(batch['input_ids'], batch['attention_mask'])
+        loss = torch.nn.functional.cross_entropy(outputs, batch['labels'])
+        self.log('val_loss', loss, sync_dist=True)
+        return {'val_loss': loss, 'preds': outputs.argmax(dim=1), 'labels': batch['labels']}
 
     def test_epoch_end(self, outputs):
-        return super().test_epoch_end(outputs)
+        preds = torch.cat([x['preds'] for x in outputs])
+        labels = torch.cat([x['labels'] for x in outputs])
+        accuracy = accuracy_score(labels.cpu(), preds.cpu())
+        f1 = f1_score(labels.cpu(), preds.cpu(), average='weighted')
+        self.log('val_accuracy', accuracy, sync_dist=True)
+        self.log('val_f1', f1, sync_dist=True)
 
     def configure_optimizers(self):
         return torch.optim.AdamW(self.parameters(), lr=self.lr)
