@@ -12,6 +12,7 @@ import pandas as pd
 from tqdm import tqdm
 
 
+DISEASE_SUBSET = ['Lung_cancer','EGFR-related_lung_cancer','Lung_carcinoma','Autoimmune_interstitial_lung_disease-arthritis_syndrome','Global_developmental_delay_-_lung_cysts_-_overgrowth_-_Wilms_tumor_syndrome','Small_cell_lung_carcinoma','Chronic_lung_disease','Lung_adenocarcinoma','Lung_disease','Non-small_cell_lung_carcinoma','LUNG_CANCER','Squamous_cell_lung_carcinoma']
 
 class TextDataset(Dataset):
     def __init__(self, texts, labels, tokenizer, max_length):
@@ -46,13 +47,13 @@ class BertClassifier(pl.LightningModule):
     def training_step(self, batch, batch_idx):
         outputs = self(batch['input_ids'], batch['attention_mask'])
         loss = torch.nn.functional.cross_entropy(outputs, batch['labels'])
-        self.log('train_loss', loss)
+        self.log('train_loss', loss, sync_dist=True)
         return loss
 
     def validation_step(self, batch, batch_idx):
         outputs = self(batch['input_ids'], batch['attention_mask'])
         loss = torch.nn.functional.cross_entropy(outputs, batch['labels'])
-        self.log('val_loss', loss)
+        self.log('val_loss', loss, sync_dist=True)
         return {'val_loss': loss, 'preds': outputs.argmax(dim=1), 'labels': batch['labels']}
 
     def validation_epoch_end(self, outputs):
@@ -62,6 +63,12 @@ class BertClassifier(pl.LightningModule):
         f1 = f1_score(labels.cpu(), preds.cpu(), average='weighted')
         self.log('val_accuracy', accuracy)
         self.log('val_f1', f1)
+
+    def test_step(self, *args, **kwargs):
+        return super().test_step(*args, **kwargs)
+
+    def test_epoch_end(self, outputs):
+        return super().test_epoch_end(outputs)
 
     def configure_optimizers(self):
         return torch.optim.AdamW(self.parameters(), lr=self.lr)
@@ -75,68 +82,67 @@ def process_data(data):
 # Example usage
 # texts = ["This is a positive sentence.", "This is a negative sentence."]
 # labels = [1, 0]
-DISEASE_SUBSET = ['Lung_cancer','EGFR-related_lung_cancer','Lung_carcinoma','Autoimmune_interstitial_lung_disease-arthritis_syndrome','Global_developmental_delay_-_lung_cysts_-_overgrowth_-_Wilms_tumor_syndrome','Small_cell_lung_carcinoma','Chronic_lung_disease','Lung_adenocarcinoma','Lung_disease','Non-small_cell_lung_carcinoma','LUNG_CANCER','Squamous_cell_lung_carcinoma']
-file_path = 'output/lung_cancer.pkl'
-if os.path.exists(file_path):
-    df = pd.read_pickle(file_path)
-else:
-    DATA = ClinVarDataWrapper()
-    data = DATA.get_data(Seq_length=512, target='CLNDN', disease_subset=True)
-    processed_data = process_data(data)
-    # create a pandas dataframe from the processed data
-    df = pd.DataFrame(processed_data, columns=['ref', 'alt', 'annotation', 'label'])
-    # Save the DataFrame to a pickle file
-    df.to_pickle(file_path)
+def get_df():
+    file_path = 'output/lung_cancer.pkl'
+    if os.path.exists(file_path):
+        df = pd.read_pickle(file_path)
+    else:
+        DATA = ClinVarDataWrapper()
+        data = DATA.get_data(Seq_length=512, target='CLNDN', disease_subset=True)
+        processed_data = process_data(data)
+        # create a pandas dataframe from the processed data
+        df = pd.DataFrame(processed_data, columns=['ref', 'alt', 'annotation', 'label'])
+        # Save the DataFrame to a pickle file
+        df.to_pickle(file_path)
+    return df
 
 
-# tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-model_max_length = 512
-tokenizer = GenomicTokenizer(model_max_length)
+if __name__ == '__main__' :
+    df = get_df()
+    # tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+    model_max_length = 512
+    tokenizer = GenomicTokenizer(model_max_length)
 
-sentences = df['alt'].tolist()
-labels = df['label'].tolist()
+    sentences = df['alt'].tolist()
+    labels = df['label'].tolist()
 
-# convert 'Lung_cancer' to 1 and Other_disease to 0
-labels = [1 if label in DISEASE_SUBSET else 0 for label in labels]
+    # convert 'Lung_cancer' to 1 and Other_disease to 0
+    labels = [1 if label in DISEASE_SUBSET else 0 for label in labels]
 
 
-dataset = TextDataset(sentences, labels, tokenizer, max_length=128)
-train_size = int(0.8 * len(dataset))
-val_size = len(dataset) - train_size
-train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
+    dataset = TextDataset(sentences, labels, tokenizer, max_length=128)
 
-train_loader = DataLoader(train_dataset, batch_size=8)
-val_loader = DataLoader(val_dataset, batch_size=8)
-#  instantiate yourself
-config = BertConfig(
-    vocab_size=tokenizer.vocab_size,
-    max_position_embeddings=512,
-    hidden_size=128,
-    num_attention_heads=2,
-    num_hidden_layers=2,
-    hidden_dropout_prob=0.1,
-    attention_probs_dropout_prob=0.1,
-    num_labels=2,
-)
+    train_size = int(0.8 * len(dataset))
+    val_size = len(dataset) - train_size
+    train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
 
-#  instantiate yourself
-config = BertConfig(
-    vocab_size=tokenizer.vocab_size,
-    max_position_embeddings=512,
-    hidden_size=128,
-    num_attention_heads=2,
-    num_hidden_layers=2,
-    hidden_dropout_prob=0.1,
-    attention_probs_dropout_prob=0.1,
-    num_labels=2,
-)
+    train_loader = DataLoader(train_dataset, batch_size=8, num_workers=2, persistent_workers=True)
+    val_loader = DataLoader(val_dataset, batch_size=8)
 
-_model = BertForSequenceClassification(config)
 
-model = BertClassifier(_model, num_labels=2)
-# model = BertClassifier('bert-base-uncased', num_labels=2)
-# model = BertClassifier('bert-base-uncased', num_labels=2)
-trainer = pl.Trainer(max_epochs=3)
-trainer.fit(model, train_loader, val_loader)
+    #  instantiate yourself
+    config = BertConfig(
+        vocab_size=tokenizer.vocab_size,
+        max_position_embeddings=512,
+        hidden_size=128,
+        num_attention_heads=2,
+        num_hidden_layers=2,
+        hidden_dropout_prob=0.1,
+        attention_probs_dropout_prob=0.1,
+        num_labels=2,
+    )
 
-trainer.test(ckpt_path="best")
+    _model = BertForSequenceClassification(config)
+
+    model = BertClassifier(_model, num_labels=2)
+    model = model.cuda()
+    # model = BertClassifier('bert-base-uncased', num_labels=2)
+    # model = BertClassifier('bert-base-uncased', num_labels=2)
+    trainer = pl.Trainer(
+        max_epochs=1,
+        accelerator='gpu',
+        devices=3
+        )
+    trainer.fit(model, train_loader, val_loader)
+    # trainer.validate(ckpt_path='output/best.ckpt', dataloaders=val_loader)
+    trainer.test(ckpt_path='best', dataloaders=val_loader)
