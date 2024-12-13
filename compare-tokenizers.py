@@ -13,7 +13,7 @@ from pytorch_lightning.loggers import WandbLogger
 import pandas as pd
 from tqdm import tqdm
 import time
-
+from embedding.hg38_char_tokenizer import CharacterTokenizer
 
 DISEASE_SUBSET = ['Lung_cancer','EGFR-related_lung_cancer','Lung_carcinoma','Autoimmune_interstitial_lung_disease-arthritis_syndrome','Global_developmental_delay_-_lung_cysts_-_overgrowth_-_Wilms_tumor_syndrome','Small_cell_lung_carcinoma','Chronic_lung_disease','Lung_adenocarcinoma','Lung_disease','Non-small_cell_lung_carcinoma','LUNG_CANCER','Squamous_cell_lung_carcinoma']
 
@@ -129,6 +129,11 @@ if __name__ == '__main__' :
         tokenizer = GenomicTokenizer(model_max_length)
     elif sys.argv[1] == 'dnab':
         tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
+    elif sys.argv[1] == 'hyena':
+        tokenizer = CharacterTokenizer(
+            characters=['A', 'C', 'G', 'T', 'N'],  # add DNA characters
+            model_max_length=model_max_length,
+        )
     else:
         print("Invalid tokenizer, please choose between 'gt' or 'dnab'")
         exit(0)
