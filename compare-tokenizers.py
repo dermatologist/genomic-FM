@@ -14,6 +14,7 @@ import pandas as pd
 from tqdm import tqdm
 import time
 from embedding.hg38_char_tokenizer import CharacterTokenizer
+from embedding.tokenization_dna import DNATokenizer
 
 DISEASE_SUBSET = ['Lung_cancer','EGFR-related_lung_cancer','Lung_carcinoma','Autoimmune_interstitial_lung_disease-arthritis_syndrome','Global_developmental_delay_-_lung_cysts_-_overgrowth_-_Wilms_tumor_syndrome','Small_cell_lung_carcinoma','Chronic_lung_disease','Lung_adenocarcinoma','Lung_disease','Non-small_cell_lung_carcinoma','LUNG_CANCER','Squamous_cell_lung_carcinoma']
 
@@ -114,8 +115,11 @@ if __name__ == '__main__' :
     if not os.path.exists('/tmp/checkpoints'):
         os.makedirs('/tmp/checkpoints')
     tmpdir = '/tmp/checkpoints/'
+    # Delete all files in the directory
+    for file in os.listdir(tmpdir):
+        os.remove(os.path.join(tmpdir, file))
     # Genomic tokenizer
-    model_max_length = 512
+    model_max_length = 2048
     # DNABert2
     model_name = "zhihan1996/DNABERT-2-117M"
     # Parameters
@@ -128,12 +132,20 @@ if __name__ == '__main__' :
     if sys.argv[1] == 'gt':
         tokenizer = GenomicTokenizer(model_max_length)
     elif sys.argv[1] == 'dnab':
-        tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
+        tokenizer = AutoTokenizer.from_pretrained(model_name,
+                                                  model_max_length=model_max_length,
+                                                  trust_remote_code=True)
     elif sys.argv[1] == 'hyena':
         tokenizer = CharacterTokenizer(
             characters=['A', 'C', 'G', 'T', 'N'],  # add DNA characters
             model_max_length=model_max_length,
         )
+    elif sys.argv[1] == '3mer':
+        vocab_file = 'embedding/vocab3.txt'
+        tokenizer = DNATokenizer(vocab_file, max_len=model_max_length)
+    elif sys.argv[1] == '6mer':
+        vocab_file = 'embedding/vocab6.txt'
+        tokenizer = DNATokenizer(vocab_file, max_len=model_max_length)
     else:
         print("Invalid tokenizer, please choose between 'gt' or 'dnab'")
         exit(0)
