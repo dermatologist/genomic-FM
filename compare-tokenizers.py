@@ -171,9 +171,7 @@ if __name__ == '__main__' :
     # convert 'Lung_cancer' to 1 and Other_disease to 0
     labels = [1 if label in DISEASE_SUBSET else 0 for label in labels]
 
-
-    # 512 is the max length of the BERT model
-    dataset = TextDataset(sentences, labels, tokenizer, max_length=512)
+    dataset = TextDataset(sentences, labels, tokenizer, max_length=model_max_length)
 
     train_size = int(0.8 * len(dataset))
     val_size = int(0.1 * len(dataset))
@@ -188,7 +186,7 @@ if __name__ == '__main__' :
     #  Initiate model from scratch
     config = BertConfig(
         vocab_size=tokenizer.vocab_size,
-        max_position_embeddings=512,
+        max_position_embeddings=model_max_length,   # 512 for pre-trained BERT, but we can change it as we are training from scratch
         hidden_size=128,
         num_attention_heads=2,
         num_hidden_layers=2,
