@@ -91,13 +91,13 @@ def process_data(data):
         new_data.append([x[0], x[1], x[2], y])
     return new_data
 
-def get_df():
-    file_path = 'output/lung_cancer.pkl'
+def get_df(seq_length=512):
+    file_path = f'output/lung_cancer_{seq_length}.pkl'
     if os.path.exists(file_path):
         df = pd.read_pickle(file_path)
     else:
         DATA = ClinVarDataWrapper()
-        data = DATA.get_data(Seq_length=512, target='CLNDN', disease_subset=True)
+        data = DATA.get_data(Seq_length=seq_length, target='CLNDN', disease_subset=True)
         processed_data = process_data(data)
         # create a pandas dataframe from the processed data
         df = pd.DataFrame(processed_data, columns=['ref', 'alt', 'annotation', 'label'])
@@ -110,7 +110,6 @@ if __name__ == '__main__' :
     # System
     os.environ["TOKENIZERS_PARALLELISM"] = "false"
     gpus = 3
-    df = get_df()
     # create chkpoint directory in /tmp if it does not exist
     if not os.path.exists('/tmp/checkpoints'):
         os.makedirs('/tmp/checkpoints')
@@ -118,8 +117,9 @@ if __name__ == '__main__' :
     # Delete all files in the directory
     for file in os.listdir(tmpdir):
         os.remove(os.path.join(tmpdir, file))
-    # Genomic tokenizer
+    # Sequence length
     model_max_length = 2048
+    df = get_df(model_max_length)
     # DNABert2
     model_name = "zhihan1996/DNABERT-2-117M"
     # Parameters
