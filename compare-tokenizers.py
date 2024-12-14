@@ -1,3 +1,4 @@
+# Description: This script compares the performance of different tokenizers on the lung cancer dataset using a BERT architecture, training from scratch.
 import torch
 import os
 import sys
@@ -12,7 +13,6 @@ from genomic_tokenizer import GenomicTokenizer
 from pytorch_lightning.loggers import WandbLogger
 import pandas as pd
 from tqdm import tqdm
-import time
 from embedding.hg38_char_tokenizer import CharacterTokenizer
 from embedding.tokenization_dna import DNATokenizer
 
@@ -105,7 +105,6 @@ def get_df(seq_length=512):
         df.to_pickle(file_path)
     return df
 
-
 if __name__ == '__main__' :
     # System
     os.environ["TOKENIZERS_PARALLELISM"] = "false"
@@ -153,14 +152,17 @@ if __name__ == '__main__' :
     run_name = sys.argv[1]
     wandb_logger = WandbLogger(name=run_name, project=f"Tokenizer comparison")
 
-
     trainer_args = {
         'max_epochs': epochs,
         'logger': wandb_logger
     }
+    # Using `DistributedSampler` with the dataloaders. During `trainer.test()`,
+    # it is recommended to use `Trainer(devices=1, num_nodes=1)` to ensure each sample/batch gets evaluated exactly once.
+    # Otherwise, multi-device settings use `DistributedSampler` that replicates some samples to make sure all devices have same batch size in case of uneven inputs.
     if gpus >= 1:
         trainer_args['accelerator'] = 'gpu'
-        trainer_args['devices'] = gpus
+        trainer_args['devices'] = 1 # gpus
+        trainer_args['num_nodes'] = 1
         trainer_args['strategy'] = 'ddp'
     else:
         trainer_args['accelerator'] = 'cpu'
@@ -181,7 +183,6 @@ if __name__ == '__main__' :
     train_loader = DataLoader(train_dataset, batch_size=8, num_workers=2, persistent_workers=True)
     val_loader = DataLoader(val_dataset, batch_size=8)
     test_loader = DataLoader(test_dataset, batch_size=8)
-
 
     #  Initiate model from scratch
     config = BertConfig(
@@ -213,5 +214,6 @@ if __name__ == '__main__' :
     trainer = pl.Trainer(**trainer_args)
     trainer.fit(model, train_loader, val_loader)
     # trainer.validate(ckpt_path='output/best.ckpt', dataloaders=val_loader)
+
     ckpt_path = os.path.join(tmpdir, sys.argv[1]+'.ckpt')
     trainer.test(ckpt_path=ckpt_path, dataloaders=test_loader)
