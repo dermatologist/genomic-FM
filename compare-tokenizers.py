@@ -117,8 +117,9 @@ if __name__ == '__main__' :
     for file in os.listdir(tmpdir):
         os.remove(os.path.join(tmpdir, file))
     # Sequence length
-    model_max_length = int(sys.argv[2])
-    df = get_df(model_max_length)
+    seq_max_length = int(sys.argv[2])
+    max_model_length = 512
+    df = get_df(seq_max_length)
     # DNABert2
     model_name = "zhihan1996/DNABERT-2-117M"
     # Parameters
@@ -129,22 +130,22 @@ if __name__ == '__main__' :
         exit(0)
 
     if sys.argv[1] == 'gt':
-        tokenizer = GenomicTokenizer(model_max_length)
+        tokenizer = GenomicTokenizer(model_max_length=seq_max_length)
     elif sys.argv[1] == 'dnab':
         tokenizer = AutoTokenizer.from_pretrained(model_name,
-                                                  model_max_length=model_max_length,
+                                                  model_max_length=seq_max_length,
                                                   trust_remote_code=True)
     elif sys.argv[1] == 'hyena':
         tokenizer = CharacterTokenizer(
             characters=['A', 'C', 'G', 'T', 'N'],  # add DNA characters
-            model_max_length=model_max_length,
+            model_max_length=seq_max_length,
         )
     elif sys.argv[1] == '3mer':
         vocab_file = 'embedding/vocab3.txt'
-        tokenizer = DNATokenizer(vocab_file, max_len=model_max_length)
+        tokenizer = DNATokenizer(vocab_file, max_len=seq_max_length)
     elif sys.argv[1] == '6mer':
         vocab_file = 'embedding/vocab6.txt'
-        tokenizer = DNATokenizer(vocab_file, max_len=model_max_length)
+        tokenizer = DNATokenizer(vocab_file, max_len=seq_max_length)
     else:
         print("Invalid tokenizer, please choose between 'gt' or 'dnab'")
         exit(0)
@@ -173,7 +174,7 @@ if __name__ == '__main__' :
     # convert 'Lung_cancer' to 1 and Other_disease to 0
     labels = [1 if label in DISEASE_SUBSET else 0 for label in labels]
 
-    dataset = TextDataset(sentences, labels, tokenizer, max_length=model_max_length)
+    dataset = TextDataset(sentences, labels, tokenizer, max_length=max_model_length)
 
     train_size = int(0.8 * len(dataset))
     val_size = int(0.1 * len(dataset))
@@ -187,7 +188,7 @@ if __name__ == '__main__' :
     #  Initiate model from scratch
     config = BertConfig(
         vocab_size=tokenizer.vocab_size,
-        max_position_embeddings=model_max_length,   # 512 for pre-trained BERT, but we can change it as we are training from scratch
+        max_position_embeddings=max_model_length,   # 512 for pre-trained BERT, but we can change it as we are training from scratch
         hidden_size=128,
         num_attention_heads=2,
         num_hidden_layers=2,
