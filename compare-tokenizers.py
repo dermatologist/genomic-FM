@@ -172,6 +172,7 @@ if __name__ == '__main__' :
     labels = [1 if label in DISEASE_SUBSET else 0 for label in labels]
 
 
+    # 512 is the max length of the BERT model
     dataset = TextDataset(sentences, labels, tokenizer, max_length=512)
 
     train_size = int(0.8 * len(dataset))
