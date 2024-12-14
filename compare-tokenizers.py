@@ -118,7 +118,7 @@ if __name__ == '__main__' :
     for file in os.listdir(tmpdir):
         os.remove(os.path.join(tmpdir, file))
     # Sequence length
-    model_max_length = 2048
+    model_max_length = int(sys.argv[2])
     df = get_df(model_max_length)
     # DNABert2
     model_name = "zhihan1996/DNABERT-2-117M"
@@ -172,7 +172,7 @@ if __name__ == '__main__' :
     labels = [1 if label in DISEASE_SUBSET else 0 for label in labels]
 
 
-    dataset = TextDataset(sentences, labels, tokenizer, max_length=128)
+    dataset = TextDataset(sentences, labels, tokenizer, max_length=512)
 
     train_size = int(0.8 * len(dataset))
     val_size = int(0.1 * len(dataset))
