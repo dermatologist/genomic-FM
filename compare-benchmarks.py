@@ -90,16 +90,12 @@ def process_data(data):
     processed_data = []
     len_data = len(data)
     for record in tqdm(data, desc="Appending sequences"):
-        # get a random index
-        idx = random.randint(0, len_data - 1)
-        # Get a random index
-        random_record = data[idx]
         # get 0 or 1 randomly
         label = random.choice([0, 1])
         if label == 0:
-            processed_data.append([record, random_record, label])
+            processed_data.append([record, record, label])
         else:
-            processed_data.append([record, mutate(random_record, 3), label])
+            processed_data.append([mutate(record, 100), mutate(record, 100), label])
     return processed_data
 
 
@@ -159,7 +155,7 @@ if __name__ == '__main__' :
     # DNABert2
     model_name = "zhihan1996/DNABERT-2-117M"
     # Parameters
-    epochs = 3
+    epochs = 1
 
     if len(sys.argv) < 2:
         print("Please provide a tokenizer to use")
