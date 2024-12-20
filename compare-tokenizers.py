@@ -150,7 +150,7 @@ if __name__ == '__main__' :
         print("Invalid tokenizer, please choose between 'gt' or 'dnab'")
         exit(0)
 
-    run_name = sys.argv[1]
+    run_name = f"{sys.argv[1]} - {seq_max_length}"
     wandb_logger = WandbLogger(name=run_name, project=f"Tokenizer comparison")
 
     trainer_args = {
