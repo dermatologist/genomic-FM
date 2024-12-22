@@ -45,7 +45,7 @@ class TextDataset(Dataset):
         encoding = self.tokenizer(text,
                                   truncation=True,
                                   padding='max_length',
-                                  ax_length=self.max_length,
+                                  max_length=self.max_length,
                                   return_tensors='pt')
         return {
             'input_ids': encoding['input_ids'].squeeze(),
