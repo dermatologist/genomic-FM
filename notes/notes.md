@@ -9,17 +9,24 @@ conda create -n py310 python=3.10
 conda install conda-forge::transformers pytorch::pytorch=2.2.0
 conda install bioconda::pyliftover
 pip3 install mavehgvs
-pip install git+https://github.com/dermatologist/genomic-tokenizer.git@feature/get-vocab-1
+pip install git+https://github.com/dermatologist/genomic-tokenizer.git@feature/handle-stop-1
 conda install bioconda::vcfpy
 conda install bioconda::kipoiseq
 conda install conda-forge::einops
 conda install conda-forge::rich
 conda install conda-forge::boto3
 conda install conda-forge::scikit-learn
+conda install conda-forge::scipy=1.12.0
 conda install conda-forge::wandb
 conda install conda-forge::pytorch-lightning=1.9.3
 
 *
+
+conda install conda-forge::pytorch-cpu=2.1.2
+conda install conda-forge::pandas=2.1.4
+sudo apt-get install libgfortran5
+sudo apt install -y g++-11
+
 
 ```
 wandb offline # if GPU compute cannot access the internet
