@@ -62,7 +62,7 @@ class BertClassifier(pl.LightningModule):
         # self.model = BertForSequenceClassification.from_pretrained(model_name, num_labels=num_labels)
         self.model = model_name
         self.lr = lr
-        self.auroc = AUROC(num_classes=num_labels, task='binary')
+        self.auroc = AUROC(num_classes=num_labels, task='multiclass')
 
     def forward(self, input_ids, attention_mask):
         return self.model(input_ids, attention_mask=attention_mask).logits
@@ -77,7 +77,8 @@ class BertClassifier(pl.LightningModule):
         outputs = self(batch['input_ids'], batch['attention_mask'])
         loss = torch.nn.functional.cross_entropy(outputs, batch['labels'])
         # Calculate AUROC
-        logits = outputs
+        logits = torch.as_tensor(outputs)
+        labels = torch.as_tensor(batch['labels'])
         self.auroc(logits, labels)
         self.log('val_loss', loss, sync_dist=True)
         return {'val_loss': loss, 'preds': outputs.argmax(dim=1), 'labels': batch['labels']}
