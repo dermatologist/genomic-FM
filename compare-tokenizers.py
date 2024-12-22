@@ -18,6 +18,7 @@ from embedding.tokenization_dna import DNATokenizer
 
 DISEASE_SUBSET = ['Lung_cancer','EGFR-related_lung_cancer','Lung_carcinoma','Autoimmune_interstitial_lung_disease-arthritis_syndrome','Global_developmental_delay_-_lung_cysts_-_overgrowth_-_Wilms_tumor_syndrome','Small_cell_lung_carcinoma','Chronic_lung_disease','Lung_adenocarcinoma','Lung_disease','Non-small_cell_lung_carcinoma','LUNG_CANCER','Squamous_cell_lung_carcinoma']
 
+
 class TextDataset(Dataset):
     def __init__(self, texts, labels, tokenizer, max_length):
         self.texts = texts
@@ -37,6 +38,7 @@ class TextDataset(Dataset):
             'attention_mask': encoding['attention_mask'].squeeze(),
             'labels': torch.tensor(label, dtype=torch.long)
         }
+
 
 class BertClassifier(pl.LightningModule):
     def __init__(self, model_name, num_labels, lr=2e-5):
@@ -85,11 +87,13 @@ class BertClassifier(pl.LightningModule):
     def configure_optimizers(self):
         return torch.optim.AdamW(self.parameters(), lr=self.lr)
 
+
 def process_data(data):
     new_data = []
     for x, y in tqdm(data, desc="Appending sequences"):
         new_data.append([x[0], x[1], x[2], y])
     return new_data
+
 
 def get_df(seq_length=512):
     file_path = f'output/lung_cancer_{seq_length}.pkl'
@@ -104,6 +108,7 @@ def get_df(seq_length=512):
         # Save the DataFrame to a pickle file
         df.to_pickle(file_path)
     return df
+
 
 if __name__ == '__main__' :
     # System
