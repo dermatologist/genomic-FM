@@ -1,4 +1,5 @@
-# Description: This script compares the performance of different tokenizers on the lung cancer dataset using a BERT architecture, training from scratch.
+# Description: This script compares the performance of different tokenizers
+# on the lung cancer dataset using a BERT architecture, training from scratch.
 import torch
 import os
 import sys
@@ -16,7 +17,16 @@ from tqdm import tqdm
 from embedding.hg38_char_tokenizer import CharacterTokenizer
 from embedding.tokenization_dna import DNATokenizer
 
-DISEASE_SUBSET = ['Lung_cancer','EGFR-related_lung_cancer','Lung_carcinoma','Autoimmune_interstitial_lung_disease-arthritis_syndrome','Global_developmental_delay_-_lung_cysts_-_overgrowth_-_Wilms_tumor_syndrome','Small_cell_lung_carcinoma','Chronic_lung_disease','Lung_adenocarcinoma','Lung_disease','Non-small_cell_lung_carcinoma','LUNG_CANCER','Squamous_cell_lung_carcinoma']
+DISEASE_SUBSET = ['Lung_cancer',
+                  'EGFR-related_lung_cancer',
+                  'Lung_carcinoma',
+                  'Autoimmune_interstitial_lung_disease-arthritis_syndrome',
+                  'Global_developmental_delay_-_lung_cysts_-_overgrowth_-_Wilms_tumor_syndrome',
+                  'Small_cell_lung_carcinoma',
+                  'Chronic_lung_disease',
+                  'Lung_adenocarcinoma',
+                  'Lung_disease',
+                  'Non-small_cell_lung_carcinoma', 'LUNG_CANCER', 'Squamous_cell_lung_carcinoma']
 
 
 class TextDataset(Dataset):
@@ -32,7 +42,11 @@ class TextDataset(Dataset):
     def __getitem__(self, idx):
         text = self.texts[idx]
         label = self.labels[idx]
-        encoding = self.tokenizer(text, truncation=True, padding='max_length', max_length=self.max_length, return_tensors='pt')
+        encoding = self.tokenizer(text,
+                                  truncation=True,
+                                  padding='max_length',
+                                  ax_length=self.max_length,
+                                  return_tensors='pt')
         return {
             'input_ids': encoding['input_ids'].squeeze(),
             'attention_mask': encoding['attention_mask'].squeeze(),
@@ -110,7 +124,7 @@ def get_df(seq_length=512):
     return df
 
 
-if __name__ == '__main__' :
+if __name__ == '__main__':
     # System
     os.environ["TOKENIZERS_PARALLELISM"] = "false"
     gpus = 3
@@ -156,18 +170,20 @@ if __name__ == '__main__' :
         exit(0)
 
     run_name = f"{sys.argv[1]} - {seq_max_length}"
-    wandb_logger = WandbLogger(name=run_name, project=f"Tokenizer comparison")
+    wandb_logger = WandbLogger(name=run_name, project="Tokenizer comparison")
 
     trainer_args = {
         'max_epochs': epochs,
         'logger': wandb_logger
     }
     # Using `DistributedSampler` with the dataloaders. During `trainer.test()`,
-    # it is recommended to use `Trainer(devices=1, num_nodes=1)` to ensure each sample/batch gets evaluated exactly once.
-    # Otherwise, multi-device settings use `DistributedSampler` that replicates some samples to make sure all devices have same batch size in case of uneven inputs.
+    # it is recommended to use `Trainer(devices=1, num_nodes=1)`
+    # to ensure each sample/batch gets evaluated exactly once.
+    # Otherwise, multi-device settings use `DistributedSampler`
+    # that replicates some samples to make sure all devices have same batch size in case of uneven inputs.
     if gpus >= 1:
         trainer_args['accelerator'] = 'gpu'
-        trainer_args['devices'] = 1 # gpus
+        trainer_args['devices'] = 1  # gpus
         trainer_args['num_nodes'] = 1
         trainer_args['strategy'] = 'ddp'
     else:
@@ -191,9 +207,10 @@ if __name__ == '__main__' :
     test_loader = DataLoader(test_dataset, batch_size=8)
 
     #  Initiate model from scratch
+    # max_model_length = 512 for pre-trained BERT, but we can change it as we are training from scratch
     config = BertConfig(
         vocab_size=tokenizer.vocab_size,
-        max_position_embeddings=max_model_length,   # 512 for pre-trained BERT, but we can change it as we are training from scratch
+        max_position_embeddings=max_model_length,
         hidden_size=128,
         num_attention_heads=2,
         num_hidden_layers=2,
@@ -221,5 +238,5 @@ if __name__ == '__main__' :
     trainer.fit(model, train_loader, val_loader)
     # trainer.validate(ckpt_path='output/best.ckpt', dataloaders=val_loader)
 
-    ckpt_path = os.path.join(tmpdir, sys.argv[1]+'.ckpt')
+    ckpt_path = os.path.join(tmpdir, sys.argv[1] + '.ckpt')
     trainer.test(ckpt_path=ckpt_path, dataloaders=test_loader)
