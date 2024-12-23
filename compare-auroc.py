@@ -132,6 +132,8 @@ def get_df(seq_length=512):
         df = pd.DataFrame(processed_data, columns=['ref', 'alt', 'annotation', 'label'])
         # Save the DataFrame to a pickle file
         df.to_pickle(file_path)
+    # shuffle the dataframe
+    df = df.sample(frac=1).reset_index(drop=True)
     return df
 
 
@@ -140,6 +142,7 @@ if __name__ == '__main__':
     os.environ["TOKENIZERS_PARALLELISM"] = "false"
     gpus = 0
     num_workers = 4
+    batch_size = 16  # 8
     # create chkpoint directory in /tmp if it does not exist
     if not os.path.exists('/tmp/checkpoints'):
         os.makedirs('/tmp/checkpoints')
@@ -207,16 +210,16 @@ if __name__ == '__main__':
     # convert 'Lung_cancer' to 1 and Other_disease to 0
     labels = [1 if label in DISEASE_SUBSET else 0 for label in labels]
 
-    dataset = TextDataset(sentences, labels, tokenizer, max_length=max_model_length)
+    dataset = TextDataset(sentences, labels, tokenizer, max_length=seq_max_length)
 
     train_size = int(0.8 * len(dataset))
     val_size = int(0.1 * len(dataset))
     test_size = len(dataset) - (train_size + val_size)
     train_dataset, val_dataset, test_dataset = random_split(dataset, [train_size, val_size, test_size])
 
-    train_loader = DataLoader(train_dataset, batch_size=8, num_workers=num_workers, persistent_workers=True)
-    val_loader = DataLoader(val_dataset, batch_size=8, num_workers=num_workers)
-    test_loader = DataLoader(test_dataset, batch_size=8, num_workers=num_workers)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, num_workers=num_workers, persistent_workers=True)
+    val_loader = DataLoader(val_dataset, batch_size=batch_size, num_workers=num_workers)
+    test_loader = DataLoader(test_dataset, batch_size=batch_size, num_workers=num_workers)
 
     #  Initiate model from scratch
     # max_model_length = 512 for pre-trained BERT, but we can change it as we are training from scratch
