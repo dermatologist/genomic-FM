@@ -142,7 +142,7 @@ if __name__ == '__main__':
     os.environ["TOKENIZERS_PARALLELISM"] = "false"
     gpus = 0
     num_workers = 4
-    batch_size = 16  # 8
+    batch_size = 8  # 8
     # create chkpoint directory in /tmp if it does not exist
     if not os.path.exists('/tmp/checkpoints'):
         os.makedirs('/tmp/checkpoints')
