@@ -210,7 +210,7 @@ if __name__ == '__main__':
     # convert 'Lung_cancer' to 1 and Other_disease to 0
     labels = [1 if label in DISEASE_SUBSET else 0 for label in labels]
 
-    dataset = TextDataset(sentences, labels, tokenizer, max_length=seq_max_length)
+    dataset = TextDataset(sentences, labels, tokenizer, max_length=max_model_length)  # max_model_length
 
     train_size = int(0.8 * len(dataset))
     val_size = int(0.1 * len(dataset))
@@ -237,7 +237,8 @@ if __name__ == '__main__':
 
     _model = BertForSequenceClassification(config)
 
-    model = BertClassifier(_model, num_labels=2)
+    # Reduce learning rate by 10x
+    model = BertClassifier(_model, num_labels=2, lr=2e-6)
 
     if gpus >= 1:
         model = model.cuda()
