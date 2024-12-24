@@ -40,7 +40,7 @@ class CheckpointEveryNSteps(pl.Callback):
 
     def __init__(
         self,
-        save_step_frequency=10,
+        save_step_frequency=2,
         prefix="N-Step-Checkpoint",
         use_modelcheckpoint_filename=False,
     ):
@@ -65,7 +65,7 @@ class CheckpointEveryNSteps(pl.Callback):
                 filename = trainer.checkpoint_callback.filename
             else:
                 # filename = f"{self.prefix}_{epoch=}_{global_step=}.ckpt"
-                filename = "output/last-saved.ckpt"
+                filename = "resume/last-saved.ckpt"
             ckpt_path = os.path.join(trainer.checkpoint_callback.dirpath, filename)
             trainer.save_checkpoint(ckpt_path)
 
@@ -183,12 +183,14 @@ if __name__ == '__main__':
     num_workers = 4
     batch_size = 12  # 8
     # create chkpoint directory in /tmp if it does not exist
-    if not os.path.exists('/tmp/checkpoints'):
-        os.makedirs('/tmp/checkpoints')
-    tmpdir = '/tmp/checkpoints/'
+    if not os.path.exists('output/checkpoints'):
+        os.makedirs('output/checkpoints')
+    tmpdir = 'output/checkpoints/'
     # Delete all files in the directory
     for file in os.listdir(tmpdir):
-        os.remove(os.path.join(tmpdir, file))
+        # if not a directory, delete it
+        if os.path.isfile(os.path.join(tmpdir, file)):
+            os.remove(os.path.join(tmpdir, file))
     # Sequence length
     seq_max_length = int(sys.argv[2])
     max_model_length = 512
@@ -294,11 +296,15 @@ if __name__ == '__main__':
     trainer_args['callbacks'] = [chpt, CheckpointEveryNSteps()]
     # if output/last-saved.ckpt exists, add it to trainer_args
     # https://lightning.ai/forums/t/how-to-resume-training/432/4
-    if os.path.exists('output/last-saved.ckpt'):
-        trainer_args['resume_from_checkpoint'] = 'output/last-saved.ckpt'
+    if os.path.exists('resume/last-saved.ckpt'):
+        trainer_args['resume_from_checkpoint'] = 'resume/last-saved.ckpt'
     trainer = pl.Trainer(**trainer_args)
     trainer.fit(model, train_loader, val_loader)
     # trainer.validate(ckpt_path='output/best.ckpt', dataloaders=val_loader)
-
     ckpt_path = os.path.join(tmpdir, sys.argv[1] + '.ckpt')
     trainer.test(ckpt_path=ckpt_path, dataloaders=test_loader)
+    # Delete the last-saved.ckpt file
+    if os.path.exists('resume/last-saved.ckpt'):
+        os.remove('resume/last-saved.ckpt')
+
+
