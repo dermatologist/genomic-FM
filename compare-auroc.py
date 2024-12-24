@@ -142,7 +142,7 @@ if __name__ == '__main__':
     os.environ["TOKENIZERS_PARALLELISM"] = "false"
     gpus = 0
     num_workers = 4
-    batch_size = 8  # 8
+    batch_size = 12  # 8
     # create chkpoint directory in /tmp if it does not exist
     if not os.path.exists('/tmp/checkpoints'):
         os.makedirs('/tmp/checkpoints')
@@ -237,8 +237,9 @@ if __name__ == '__main__':
 
     _model = BertForSequenceClassification(config)
 
-    # Reduce learning rate by 10x
-    model = BertClassifier(_model, num_labels=2, lr=2e-6)
+    # Modify learning rate
+    # https://stackoverflow.com/questions/42966393/is-it-good-learning-rate-for-adam-method
+    model = BertClassifier(_model, num_labels=2, lr=3e-4)
 
     if gpus >= 1:
         model = model.cuda()
