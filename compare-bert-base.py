@@ -17,7 +17,7 @@ from transformers import (AutoTokenizer, BertConfig,
 
 from embedding.hg38_char_tokenizer import CharacterTokenizer
 from embedding.tokenization_dna import DNATokenizer
-from src.dataloader.data_wrapper import ClinVarDataWrapper
+from src.dataloader.bell_wrapper import ClinVarDataWrapper
 
 DISEASE_SUBSET = ['Lung_cancer',
                   'EGFR-related_lung_cancer',
@@ -27,8 +27,9 @@ DISEASE_SUBSET = ['Lung_cancer',
                   'Small_cell_lung_carcinoma',
                   'Chronic_lung_disease',
                   'Lung_adenocarcinoma',
-                  'Lung_disease',
-                  'Non-small_cell_lung_carcinoma', 'LUNG_CANCER', 'Squamous_cell_lung_carcinoma']
+                  'Non-small_cell_lung_carcinoma',
+                  'LUNG_CANCER',
+                  'Squamous_cell_lung_carcinoma']
 
 
 class TextDataset(Dataset):
@@ -125,7 +126,10 @@ def get_df(seq_length=512):
     if os.path.exists(file_path):
         df = pd.read_pickle(file_path)
     else:
-        DATA = ClinVarDataWrapper()
+        DATA = ClinVarDataWrapper(
+            my_subset=DISEASE_SUBSET,
+            percent=50,
+        )
         data = DATA.get_data(Seq_length=seq_length, target='CLNDN', disease_subset=True)
         processed_data = process_data(data)
         # create a pandas dataframe from the processed data
