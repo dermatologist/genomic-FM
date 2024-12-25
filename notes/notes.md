@@ -9,7 +9,7 @@ conda create -n py310 python=3.10
 conda install conda-forge::transformers pytorch::pytorch=2.2.0
 conda install bioconda::pyliftover
 pip3 install mavehgvs
-pip install git+https://github.com/dermatologist/genomic-tokenizer.git@feature/handle-stop-1
+pip install git+https://github.com/dermatologist/genomic-tokenizer.git@feature/unk-mask-1
 conda install bioconda::vcfpy
 conda install bioconda::kipoiseq
 conda install conda-forge::einops
