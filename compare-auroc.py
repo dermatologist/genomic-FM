@@ -140,7 +140,20 @@ def get_df(seq_length=512):
 if __name__ == '__main__':
     # System
     os.environ["TOKENIZERS_PARALLELISM"] = "false"
-    gpus = 0
+    # GPU
+    accel = 'unknown'
+    if torch.cuda.is_available():
+        gpus = torch.cuda.device_count()
+        device = torch.cuda.get_device_name(0)
+        accel = 'cuda'
+    # if mps is available
+    elif torch.backends.mps.is_available():
+        gpus = 1
+        device = torch.device("mps")
+        accel = 'mps'
+    else:
+        gpus = 0
+        device = torch.device("cpu")
     num_workers = 4
     batch_size = 12  # 8
     # create chkpoint directory in /tmp if it does not exist
@@ -198,9 +211,10 @@ if __name__ == '__main__':
     # that replicates some samples to make sure all devices have same batch size in case of uneven inputs.
     if gpus >= 1:
         trainer_args['accelerator'] = 'gpu'
-        trainer_args['devices'] = 1  # gpus
+        trainer_args['devices'] = gpus
         trainer_args['num_nodes'] = 1
-        trainer_args['strategy'] = 'ddp'
+        if accel != 'mps':
+            trainer_args['strategy'] = 'ddp'
     else:
         trainer_args['accelerator'] = 'cpu'
 
@@ -242,7 +256,7 @@ if __name__ == '__main__':
     model = BertClassifier(_model, num_labels=2, lr=3e-4)
 
     if gpus >= 1:
-        model = model.cuda()
+        model = model.to(device)
 
     chpt = pl.callbacks.model_checkpoint.ModelCheckpoint(
         dirpath=tmpdir,

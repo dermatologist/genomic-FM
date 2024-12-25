@@ -35,6 +35,7 @@ conda install bioconda::kipoiseq bioconda::pyliftover
 pip3 install mavehgvs
 pip install git+https://github.com/dermatologist/genomic-tokenizer.git@feature/handle-stop-1
 
+conda install bioconda::vcfpy pytorch::pytorch=2.2.0 conda-forge::pytorch-lightning=1.9.3
 
 
 ```
