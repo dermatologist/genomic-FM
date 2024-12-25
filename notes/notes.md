@@ -28,6 +28,15 @@ sudo apt-get install libgfortran5
 sudo apt install -y g++-11
 
 
+conda install bioconda::vcfpy conda-forge::pytorch-gpu=2.1.2 pytorch::pytorch-cuda=12.4 conda-forge::pytorch-lightning=1.9.3
+conda install conda-forge::transformers conda-forge::wandb
+conda install conda-forge::scikit-learn conda-forge::rich conda-forge::boto3 conda-forge::einops
+conda install bioconda::kipoiseq bioconda::pyliftover
+pip3 install mavehgvs
+pip install git+https://github.com/dermatologist/genomic-tokenizer.git@feature/handle-stop-1
+
+
+
 ```
 wandb offline # if GPU compute cannot access the internet
 python finetune.py --dataset='oligogenic_codon_bert' --epochs=3 --gpus=3 --num_workers=2 --config=configs/finetune_codonbert.yaml --seed=0 --project='Codon-Bert-Olida'
