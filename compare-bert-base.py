@@ -181,7 +181,7 @@ if __name__ == '__main__':
         exit(0)
 
     if sys.argv[1] == 'gt':
-        tokenizer = GenomicTokenizer(model_max_length=seq_max_length)
+        tokenizer = GenomicTokenizer(model_max_length=seq_max_length, introns=False)
     elif sys.argv[1] == 'dnab':
         tokenizer = AutoTokenizer.from_pretrained(model_name,
                                                   model_max_length=seq_max_length,
@@ -202,7 +202,7 @@ if __name__ == '__main__':
         exit(0)
 
     run_name = f"{sys.argv[1]} - {seq_max_length}"
-    wandb_logger = WandbLogger(name=run_name, project="Tokenizer comparison")
+    wandb_logger = WandbLogger(name=run_name, project="Tokenizer comparison - v2")
 
     trainer_args = {
         'max_epochs': epochs,
