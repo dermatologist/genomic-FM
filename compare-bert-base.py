@@ -5,7 +5,7 @@ import sys
 
 import pandas as pd
 import pytorch_lightning as pl
-from torchmetrics.classification import AUROC
+from torchmetrics.classification import AUROC, MatthewsCorrCoef
 import torch
 from genomic_tokenizer import GenomicTokenizer
 from pytorch_lightning.loggers import WandbLogger
@@ -64,6 +64,7 @@ class BertClassifier(pl.LightningModule):
         self.model = model_name
         self.lr = lr
         self.auroc = AUROC(num_classes=num_labels, task='multiclass')
+        self.matthews_corr = MatthewsCorrCoef(task='binary')
 
     def forward(self, input_ids, attention_mask):
         return self.model(input_ids, attention_mask=attention_mask).logits
@@ -81,6 +82,7 @@ class BertClassifier(pl.LightningModule):
         logits = torch.as_tensor(outputs)
         labels = torch.as_tensor(batch['labels'])
         self.auroc(logits, labels)
+        self.matthews_corr(logits.argmax(dim=1), labels)
         self.log('val_loss', loss, sync_dist=True)
         return {'val_loss': loss, 'preds': outputs.argmax(dim=1), 'labels': batch['labels']}
 
@@ -93,6 +95,8 @@ class BertClassifier(pl.LightningModule):
         self.log('val_f1', f1, sync_dist=True)
         # Log the validation AUROC
         auroc = self.auroc.compute()
+        matthews_corr = self.matthews_corr.compute()
+        self.log('val_matthews_corr', matthews_corr)
         self.log('val_auroc', auroc)
         self.auroc.reset()
 
@@ -143,12 +147,13 @@ def get_df(seq_length=512):
 
 if __name__ == '__main__':
     # System
+    torch.set_float32_matmul_precision('medium')
     os.environ["TOKENIZERS_PARALLELISM"] = "false"
     # GPU
     accel = 'unknown'
     if torch.cuda.is_available():
         gpus = torch.cuda.device_count()
-        device = torch.cuda.get_device_name(0)
+        device = torch.device("cuda")
         accel = 'cuda'
     # if mps is available
     elif torch.backends.mps.is_available():
@@ -202,7 +207,7 @@ if __name__ == '__main__':
         exit(0)
 
     run_name = f"{sys.argv[1]} - {seq_max_length}"
-    wandb_logger = WandbLogger(name=run_name, project="Tokenizer comparison - v2")
+    wandb_logger = WandbLogger(name=run_name, project="Tokenizer comparison - v3")
 
     trainer_args = {
         'max_epochs': epochs,
