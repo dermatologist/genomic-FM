@@ -96,8 +96,8 @@ class BertClassifier(pl.LightningModule):
         # Log the validation AUROC
         auroc = self.auroc.compute()
         matthews_corr = self.matthews_corr.compute()
-        self.log('val_matthews_corr', matthews_corr)
-        self.log('val_auroc', auroc)
+        self.log('val_matthews_corr', matthews_corr, sync_dist=True)
+        self.log('val_auroc', auroc, sync_dist=True)
         self.auroc.reset()
 
     def test_step(self, batch, batch_idx, **kwargs):
