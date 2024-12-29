@@ -149,14 +149,16 @@ def get_df(seq_length=512):
         processed_data = process_data(data)
         # create a pandas dataframe from the processed data
         df = pd.DataFrame(processed_data, columns=["ref", "alt", "annotation", "label"])
-        # shuffle the dataframe
-        df = df.sample(frac=1).reset_index(drop=True)
         # Save the DataFrame to a pickle file
         df.to_pickle(file_path)
+    # shuffle the dataframe
+    df = df.sample(frac=1).reset_index(drop=True)
     return df
+
 
 def labels_to_int(labels):
     return [1 if label in DISEASE_SUBSET else 0 for label in labels]
+
 
 if __name__ == "__main__":
     # System
@@ -246,9 +248,11 @@ if __name__ == "__main__":
         print("Data not found, creating new dataframes")
         df = get_df(seq_max_length)
         # Split the dataframe into training, validation and test sets
-        train_df, val_df, test_df = df[: int(0.6 * len(df))], df[
-            int(0.6 * len(df)) : int(0.7 * len(df))
-        ], df[int(0.7 * len(df)) :]
+        train_df, val_df, test_df = (
+            df[: int(0.6 * len(df))],
+            df[int(0.6 * len(df)) : int(0.7 * len(df))],
+            df[int(0.7 * len(df)) :],
+        )
 
         # save the dataframes to pickle files
         train_df.to_pickle(f"output/train_{seq_max_length}.pkl")
@@ -256,13 +260,22 @@ if __name__ == "__main__":
         test_df.to_pickle(f"output/test_{seq_max_length}.pkl")
 
     train_dataset = TextDataset(
-        train_df["alt"].tolist(), labels_to_int(train_df["label"].tolist()), tokenizer, max_length=max_model_length
+        train_df["alt"].tolist(),
+        labels_to_int(train_df["label"].tolist()),
+        tokenizer,
+        max_length=max_model_length,
     )
     val_dataset = TextDataset(
-        val_df["alt"].tolist(), labels_to_int(val_df["label"].tolist()), tokenizer, max_length=max_model_length
+        val_df["alt"].tolist(),
+        labels_to_int(val_df["label"].tolist()),
+        tokenizer,
+        max_length=max_model_length,
     )
     test_dataset = TextDataset(
-        test_df["alt"].tolist(), labels_to_int(test_df["label"].tolist()), tokenizer, max_length=max_model_length
+        test_df["alt"].tolist(),
+        labels_to_int(test_df["label"].tolist()),
+        tokenizer,
+        max_length=max_model_length,
     )
 
     train_loader = DataLoader(
