@@ -149,10 +149,10 @@ def get_df(seq_length=512):
         processed_data = process_data(data)
         # create a pandas dataframe from the processed data
         df = pd.DataFrame(processed_data, columns=["ref", "alt", "annotation", "label"])
+        # shuffle the dataframe
+        df = df.sample(frac=1).reset_index(drop=True)
         # Save the DataFrame to a pickle file
         df.to_pickle(file_path)
-    # shuffle the dataframe
-    # df = df.sample(frac=1).reset_index(drop=True)
     return df
 
 def labels_to_int(labels):
