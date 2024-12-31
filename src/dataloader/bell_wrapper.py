@@ -214,7 +214,7 @@ class ClinVarDataWrapper:
         # Join the parts back together
         return '_'.join(parts)
 
-    def get_data(self, Seq_length=20, target='CLNSIG', disease_subset=False):
+    def get_data(self, Seq_length=20, target='CLNSIG', disease_subset=False, multi_class=False):
         # return (x, y) pairs
         data = []
         _records = int(len(self.records) * self.percent / 100)
@@ -253,7 +253,8 @@ class ClinVarDataWrapper:
             # get the length of records with the disease subset
             for i in range(len(data)):
                 if data[i][1] in self.my_subset:
-                    data[i][1]  = self.my_subset[0]
+                    if not multi_class:
+                        data[i][1]  = self.my_subset[0]
                     data_subset.append(data[i])
             num_record_with_dis_subset = len(data_subset)
             # get the same number of other records
