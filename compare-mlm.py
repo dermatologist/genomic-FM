@@ -354,8 +354,8 @@ if __name__ == "__main__":
 
     config = BertConfig(
         architecture=["BertForMaskedLM"],
-        attention_probs_dropout_prob=0.1,
-        classifier_dropout=0.1,
+        attention_probs_dropout_prob=0,
+        classifier_dropout=0,
         gradient_checkpointing=False,
         hidden_act="gelu",
         hidden_dropout_prob=0,
