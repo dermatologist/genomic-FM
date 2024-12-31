@@ -34,18 +34,11 @@ DISEASE_SUBSET = [
 
 # convert the classes to integers
 DISEASE_KEYS = {
-    "Lung_cancer": 10,
-    "EGFR-related_lung_cancer": 1,
-    "Lung_carcinoma": 2,
-    "Autoimmune_interstitial_lung_disease-arthritis_syndrome": 3,
-    "Global_developmental_delay_-_lung_cysts_-_overgrowth_-_Wilms_tumor_syndrome": 4,
-    "Small_cell_lung_carcinoma": 5,
-    "Chronic_lung_disease": 6,
-    "Lung_adenocarcinoma": 7,
-    "Non-small_cell_lung_carcinoma": 8,
-    "LUNG_CANCER": 9,
-    "Squamous_cell_lung_carcinoma": 11,
-}
+    "Benign": 0,
+    "Likely_benign": 1,
+    "Likely_pathogenic": 2,
+    "Pathogenic": 3
+    }
 
 class TextDataset(Dataset):
     def __init__(self, texts, labels, tokenizer, max_length):
@@ -155,11 +148,8 @@ def get_df(seq_length=512):
     if os.path.exists(file_path):
         df = pd.read_pickle(file_path)
     else:
-        DATA = ClinVarDataWrapper(
-            my_subset=DISEASE_SUBSET,
-            percent=50,
-        )
-        data = DATA.get_data(Seq_length=seq_length, target="CLNDN", disease_subset=True, multi_class=True)
+        DATA = ClinVarDataWrapper(  )
+        data = DATA.get_data(Seq_length=seq_length)
         processed_data = process_data(data)
         # create a pandas dataframe from the processed data
         df = pd.DataFrame(processed_data, columns=["ref", "alt", "annotation", "label"])
@@ -167,12 +157,13 @@ def get_df(seq_length=512):
         df.to_pickle(file_path)
     # shuffle the dataframe
     df = df.sample(frac=1).reset_index(drop=True)
+    print(df.head())
     return df
 
 
 def labels_to_int(labels):
     for i, label in enumerate(labels):
-        if label in DISEASE_KEYS:
+        if label in DISEASE_KEYS.keys():
             labels[i] = DISEASE_KEYS[label]
         else:
             labels[i] = 0
@@ -198,7 +189,7 @@ if __name__ == "__main__":
         gpus = 0
         device = torch.device("cpu")
     num_workers = 4
-    batch_size = 12  # 8
+    batch_size = 24  # 8
     # create chkpoint directory in /tmp if it does not exist
     if not os.path.exists("/tmp/checkpoints"):
         os.makedirs("/tmp/checkpoints")
@@ -213,7 +204,7 @@ if __name__ == "__main__":
     model_name = "zhihan1996/DNABERT-2-117M"
     # Parameters
     epochs = 1
-    num_classes = 12
+    num_classes = 4
 
     if len(sys.argv) < 2:
         print("Please provide a tokenizer to use")
