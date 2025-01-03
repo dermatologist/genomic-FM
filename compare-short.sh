@@ -1,6 +1,4 @@
 #!/bin/bash
-while true
-do
 python compare-save-datasets.py hyena 512
 python compare-save-datasets.py dnab 512
 python compare-save-datasets.py gt 512
@@ -16,4 +14,3 @@ python compare-save-datasets.py gt 2048
 python compare-save-datasets.py hyena 4096
 python compare-save-datasets.py dnab 4096
 python compare-save-datasets.py gt 4096
-done
