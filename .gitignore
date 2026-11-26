@@ -81,3 +81,5 @@ lightning_logs/
 # Slurm #
 ########
 slurm-*
+
+.venv/
