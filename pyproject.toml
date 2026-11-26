@@ -1,0 +1,31 @@
+[project]
+name = "genomic-fm"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "setuptools",
+    "vcfpy",
+    "pandas",
+    "numpy",
+    "scipy",
+    "biopython",
+    "kipoiseq",
+    "pyfaidx",
+    "sgkit",
+    "pyliftover",
+    "tokenizers",
+    "mavehgvs",
+    "webdataset",
+    "git-lfs",
+    "einops",
+    "omegaconf",
+    "wandb",
+    "boto3",
+    "tqdm",
+    "torch==2.2.0",
+    "torchvision",
+    "pytorch-lightning==1.9.3",
+    "faiss-cpu==1.8.0",
+]
