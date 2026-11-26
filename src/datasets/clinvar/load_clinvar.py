@@ -4,8 +4,11 @@ import requests
 import gzip
 import vcfpy as vcf
 
-def download_file(vcf_file_path='./root/data/clinvar_20240416.vcf',
-                  vcf_gz_path='clinvar_20240416.vcf.gz'):
+
+def download_file(
+    vcf_file_path="/home/bpunn/data/clinvar/clinvar_20240416.vcf",
+    vcf_gz_path="clinvar_20240416.vcf.gz",
+):
     # Create the directory if it does not exist
     os.makedirs(os.path.dirname(vcf_file_path), exist_ok=True)
 
