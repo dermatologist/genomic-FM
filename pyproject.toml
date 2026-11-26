@@ -5,10 +5,10 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "setuptools",
+    "setuptools<82",
     "vcfpy",
     "pandas",
-    "numpy",
+    "numpy<2",
     "scipy",
     "biopython",
     "kipoiseq",
